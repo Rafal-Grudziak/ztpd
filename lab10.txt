@@ -1,0 +1,198 @@
+let $bib := doc("db/bib/bib.xml")/bib
+let $plays := collection("db/shakespeare")/PLAY
+return
+<RESULTS>
+
+  <!-- Zadanie 5 -->
+  <ZAD05>{
+    for $a in $bib/book/author/last
+    return $a
+  }</ZAD05>
+
+  <!-- Zadanie 6 -->
+  <ZAD06>{
+    for $b in $bib/book
+    for $t in $b/title
+    for $a in $b/author
+    return
+      <ksiazka>
+        { $a }
+        <title>{ data($t) }</title>
+      </ksiazka>
+  }</ZAD06>
+
+  <!-- Zadanie 7 -->
+  <ZAD07>{
+    for $b in $bib/book
+    for $t in $b/title
+    for $a in $b/author
+    return
+      <ksiazka>
+        <autor>{ concat($a/last, $a/first) }</autor>
+        <tytul>{ data($t) }</tytul>
+      </ksiazka>
+  }</ZAD07>
+
+  <!-- Zadanie 8 -->
+  <ZAD08>{
+    for $b in $bib/book
+    for $t in $b/title
+    for $a in $b/author
+    return
+      <ksiazka>
+        <autor>{ concat($a/last, " ", $a/first) }</autor>
+        <tytul>{ data($t) }</tytul>
+      </ksiazka>
+  }</ZAD08>
+
+  <!-- Zadanie 9 -->
+  <ZAD09>
+    <wynik>{
+      for $b in $bib/book
+      for $t in $b/title
+      for $a in $b/author
+      return
+        <ksiazka>
+          <autor>{ concat($a/last, " ", $a/first) }</autor>
+          <tytul>{ data($t) }</tytul>
+        </ksiazka>
+    }</wynik>
+  </ZAD09>
+
+  <!-- Zadanie 10 -->
+  <ZAD10>
+    <imiona>{
+      for $a in $bib/book[title="Data on the Web"]/author
+      return <imie>{ string($a/first) }</imie>
+    }</imiona>
+  </ZAD10>
+
+  <!-- Zadanie 11a -->
+  <ZAD11A>
+    <DataOnTheWeb>{
+      $bib/book[title = "Data on the Web"]
+    }</DataOnTheWeb>
+  </ZAD11A>
+
+
+  <!-- Zadanie 11b -->
+  <ZAD11B>
+    <DataOnTheWeb>{
+      for $b in $bib/book
+      where $b/title = "Data on the Web"
+      return $b
+    }</DataOnTheWeb>
+  </ZAD11B>
+
+
+  <!-- Zadanie 12 -->
+  <ZAD12>
+    <Data>{
+      for $b in $bib/book[contains(title, "Data")]
+      for $a in $b/author
+      return <nazwisko>{ string($a/last) }</nazwisko>
+    }</Data>
+  </ZAD12>
+
+  <!-- Zadanie 13 -->
+  <ZAD13>
+    <Data>{
+      for $b in $bib/book[contains(title, "Data")]
+      return (
+        $b/title,
+        for $a in $b/author
+        return <nazwisko>{ string($a/last) }</nazwisko>
+      )
+    }</Data>
+  </ZAD13>
+
+  <!-- Zadanie 14 -->
+  <ZAD14>{
+    for $b in $bib/book
+    where count($b/author) <= 2
+    return $b/title
+  }</ZAD14>
+
+  <!-- Zadanie 15 -->
+  <ZAD15>{
+    for $b in $bib/book
+    return
+      <ksiazka>
+        { $b/title }
+        <autorow>{ count($b/author) }</autorow>
+      </ksiazka>
+  }</ZAD15>
+
+  <!-- Zadanie 16 -->
+  <ZAD16>{
+    let $years := $bib/book/@year ! xs:integer(.)
+    return <przedzial>{ min($years) } - { max($years) }</przedzial>
+  }</ZAD16>
+
+  <!-- Zadanie 17 -->
+  <ZAD17>{
+    let $prices := $bib/book/price ! xs:decimal(.)
+    return <roznica>{ max($prices) - min($prices) }</roznica>
+  }</ZAD17>
+
+  <!-- Zadanie 18 -->
+  <ZAD18>{
+    let $min := min($bib/book/price ! xs:decimal(.))
+    return
+      <najtasze>
+        <najtansza>{
+          for $b in $bib/book[xs:decimal(price) = $min]
+          return
+            <ksiazka>
+              { $b/title }
+              { $b/author }
+            </ksiazka>
+        }</najtansza>
+      </najtasze>
+  }</ZAD18>
+
+  <!-- Zadanie 19 -->
+  <ZAD19>{
+    for $last in distinct-values($bib/book/author/last)
+    order by $last
+    return
+      <autor>
+        <nazwisko>{ $last }</nazwisko>
+        {
+          for $b in $bib/book[author/last = $last]
+          return $b/title
+        }
+      </autor>
+  }</ZAD19>
+
+  <!-- Zadanie 20 -->
+  <ZAD20>
+    <wynik>{
+      for $p in $plays
+      return $p/TITLE
+    }</wynik>
+  </ZAD20>
+
+  <!-- Zadanie 21 -->
+  <ZAD21>{
+    for $p in $plays
+    where some $l in $p//LINE
+          satisfies contains(lower-case(string($l)), "or not to be")
+    return $p/TITLE
+  }</ZAD21>
+
+  <!-- Zadanie 22 -->
+  <ZAD22>
+    <wynik>{
+      for $p in $plays
+      return
+        <sztuka tytul="{ data($p/TITLE) }">
+          <postaci>{ count($p//PERSONA) }</postaci>
+          <aktow>{ count($p/ACT) }</aktow>
+          <scen>{ count($p//SCENE) }</scen>
+        </sztuka>
+    }</wynik>
+  </ZAD22>
+
+
+</RESULTS>
